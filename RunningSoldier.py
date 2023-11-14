@@ -126,7 +126,7 @@ class SlowMo:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.image = scaled_image
+        self.image = scaled_image_sm
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -136,8 +136,8 @@ class SlowMo:
         self.rect.x += self.speed
 
     def draw(self, screen):
-        scaled_image = pygame.transform.scale(SLOWMO, (64, 64))
-        screen.blit(scaled_image, self.rect)
+        scaled_image_sm = pygame.transform.scale(SLOWMO, (64, 64))
+        screen.blit(scaled_image_sm, self.rect)
     
     def collides_with(self, obstacle):
         # Use the rect attribute for collision detection
@@ -362,8 +362,7 @@ class BombItem:
         self.music_channel.set_volume(0.2)
 
         self.sounds_list = {
-            'item_collect': mixer.Sound('sounds/item_collect.wav'),
-            'bomb': mixer.Sound('sounds/bomb.wav'),
+            'bomb': mixer.Sound('sounds/bomb.wav')
         }
 
     def update(self):
@@ -377,7 +376,7 @@ class BombItem:
 
 class SlowMoItem:
     def __init__(self):
-        self.image = scaled_image  # Replace with your item image path
+        self.image = scaled_image_sm  # Replace with your item image path
         self.rect = self.image.get_rect()
         self.rect.x = SCREEN_WIDTH
         self.rect.y = random.randint(100, 350)  # Random height
@@ -386,7 +385,6 @@ class SlowMoItem:
         self.music_channel.set_volume(0.2)
 
         self.sounds_list = {
-            'item_collect': mixer.Sound('sounds/item_collect.wav'),
             'slow': mixer.Sound('sounds/slow.wav'),
         }
 
@@ -482,10 +480,10 @@ def main():
                     fireballs.append(Fireball(150, 340))
                     fireball_count -= 1
         # Add bullet items to the game
-        if random.randint(0, 80) == 5:  # Adjust the frequency as needed
+        if random.randint(0, 60) == 5:  # Adjust the frequency as needed
             bullet_items.append(BulletItem())
         
-        if random.randint(0, 150) == 5:  # Adjust the frequency as needed
+        if random.randint(0, 200) == 5:  # Adjust the frequency as needed
             bomb_items.append(BombItem())
         
         if random.randint(0, 200) == 5:  # Adjust the frequency as needed
@@ -521,6 +519,8 @@ def main():
             if player.soldier_rect.colliderect(item.rect):
                 player.music_channel.play(player.sounds_list['item_collect'])
                 game_speed -= 2
+                if game_speed == 0 or game_speed<0:
+                    game_speed = 1
                 slowmo_items.remove(item)
         
         # for obstacle in obstacles:
