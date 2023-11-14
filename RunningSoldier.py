@@ -412,6 +412,7 @@ def main():
     obstacles = []
     death_count = 0
     pause = False
+    fireball_count = 3
 
     def display_bullet_count():
         font = pygame.font.Font("freesansbold.ttf", 20)
