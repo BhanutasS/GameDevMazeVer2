@@ -511,13 +511,13 @@ def main():
         
         for item in bomb_items[:]:  # Use a slice copy to iterate safely when removing items
             if player.soldier_rect.colliderect(item.rect):
-                player.music_channel.play(player.sounds_list['item_collect'])
+                player.music_channel.play(player.sounds_list['bomb'])
                 obstacles.clear()
                 bomb_items.remove(item)  # Remove the collected item
         
         for item in slowmo_items[:]:  # Use a slice copy to iterate safely when removing items
             if player.soldier_rect.colliderect(item.rect):
-                player.music_channel.play(player.sounds_list['item_collect'])
+                player.music_channel.play(player.sounds_list['slow'])
                 game_speed -= 2
                 if game_speed == 0 or game_speed<0:
                     game_speed = 1
