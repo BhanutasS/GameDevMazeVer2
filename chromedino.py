@@ -5,6 +5,8 @@ import os
 import random
 import threading
 
+from pygame import mixer
+
 import pygame
 
 pygame.init()
@@ -19,6 +21,7 @@ pygame.display.set_caption("Chrome Dino Runner")
 
 Ico = pygame.image.load("assets/DinoWallpaper.png")
 pygame.display.set_icon(Ico)
+
 
 RUNNING = [
     pygame.image.load(os.path.join("assets/Soldier/r_run", "tile008.png")),
@@ -116,6 +119,21 @@ class Dinosaur:
         self.dino_rect.x = self.X_POS
         self.dino_rect.y = self.Y_POS
         self.hitbox = self.dino_rect.inflate(-20, -10)
+        
+        self.music_channel = mixer.Channel(0)
+        self.music_channel.set_volume(0.2)
+
+        self.sounds_list = {
+            'item_collect': mixer.Sound('sounds/item_collect.wav'),
+            'bomb': mixer.Sound('sounds/bomb.wav'),
+            'Hit': mixer.Sound('sounds/Hit.wav'),
+            'jump': mixer.Sound('sounds/jump.wav'),
+            'next_level': mixer.Sound('sounds/next_level.wav'),
+            'shot': mixer.Sound('sounds/shot.wav'),
+        }
+        
+        self.hit=False
+
 
     def update(self, userInput):
 
@@ -128,6 +146,9 @@ class Dinosaur:
         if self.dino_jump:
             self.jump()
         if self.dino_dead:
+            if self.hit==False:
+                self.music_channel.play(self.sounds_list['Hit'])
+                self.hit=True
             self.dead()
         if self.dino_shoot:
             self.shoot()
@@ -136,6 +157,7 @@ class Dinosaur:
             self.step_index = 0
 
         if (userInput[pygame.K_UP]) and not self.dino_jump:
+            self.music_channel.play(self.sounds_list['jump'])
             self.dino_duck = False
             self.dino_run = False
             self.dino_jump = True
@@ -175,12 +197,14 @@ class Dinosaur:
         if self.jump_vel < -self.JUMP_VEL:
             self.dino_jump = False
             self.jump_vel = self.JUMP_VEL
+        
     
     def dead(self):
         self.image = self.dead_img[0]
     
     def shoot(self):
         self.image = self.shoot_img
+        self.music_channel.play(self.sounds_list['shot'])
 
 
     def draw(self, SCREEN):
@@ -255,6 +279,14 @@ class BulletItem:
         self.rect = self.image.get_rect()
         self.rect.x = SCREEN_WIDTH
         self.rect.y = random.randint(100, 350)  # Random height
+        
+        self.music_channel = mixer.Channel(0)
+        self.music_channel.set_volume(0.2)
+
+        self.sounds_list = {
+            'item_collect': mixer.Sound('sounds/item_collect.wav'),
+            'bomb': mixer.Sound('sounds/bomb.wav'),
+        }
 
     def update(self):
         self.rect.x -= game_speed
@@ -361,6 +393,7 @@ def main():
         # Check for collisions with bullet items
         for item in bullet_items[:]:  # Use a slice copy to iterate safely when removing items
             if player.dino_rect.colliderect(item.rect):
+                player.music_channel.play(player.sounds_list['item_collect'])
                 fireball_count += 1  # Increase bullet count
                 bullet_items.remove(item)  # Remove the collected item
 
