@@ -487,7 +487,8 @@ def main():
             bomb_items.append(BombItem())
         
         if random.randint(0, 200) == 5:  # Adjust the frequency as needed
-            slowmo_items.append(SlowMoItem())
+            if game_speed>10:
+                slowmo_items.append(SlowMoItem())
 
         # Update and draw bullet items
         for item in bullet_items[:]:  # Use a slice copy to iterate safely when removing items
