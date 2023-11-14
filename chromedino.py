@@ -130,6 +130,7 @@ class Dinosaur:
             'jump': mixer.Sound('sounds/jump.wav'),
             'next_level': mixer.Sound('sounds/next_level.wav'),
             'shot': mixer.Sound('sounds/shot.wav'),
+            'slow':mixer.Sound('sounds/slow.wav'),
         }
         
         self.hit=False
