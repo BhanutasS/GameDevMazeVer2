@@ -149,9 +149,6 @@ class soldier:
     Y_POS = 330
     Y_POS_DUCK = 370
     JUMP_VEL = 8.5
-    MAX_Y_POS = 500  # Change as per your screen size and game design
-    MIN_Y_POS = 100  # Change as per your screen size and game design
-    VERTICAL_MOVE_SPEED = 10  # Speed of vertical movement
 
     def __init__(self):
         self.duck_img = DUCKING
@@ -161,7 +158,7 @@ class soldier:
         self.shoot_img = SHOOT
 
         self.soldier_duck = False
-        # self.soldier_run = True
+        self.soldier_run = True
         self.soldier_jump = False
         self.soldier_dead = False
         self.soldier_shoot = False
@@ -197,8 +194,8 @@ class soldier:
 
         if self.soldier_duck:
             self.duck()
-        # if self.soldier_run:
-        #     self.run()
+        if self.soldier_run:
+            self.run()
         if self.soldier_jump:
             self.jump()
         if self.soldier_dead:
@@ -206,28 +203,26 @@ class soldier:
                 self.music_channel.play(self.sounds_list['Hit'])
                 self.hit=True
             self.dead()
-        
-        if userInput[pygame.K_UP] and self.soldier_rect.y > self.MIN_Y_POS:
-            self.soldier_rect.y -= self.VERTICAL_MOVE_SPEED
-        elif userInput[pygame.K_DOWN] and self.soldier_rect.y < self.MAX_Y_POS:
-            self.soldier_rect.y += self.VERTICAL_MOVE_SPEED
-        
         if self.soldier_shoot:
             self.shoot()
 
         if self.step_index >= 8:
             self.step_index = 0
 
-        # if (userInput[pygame.K_UP]) and not self.soldier_jump:
-        #     self.soldier_rect.y -=10
-        # elif userInput[pygame.K_DOWN] and not self.soldier_jump:
-        #     self.soldier_rect.y +=10
-        # elif not (self.soldier_jump or userInput[pygame.K_DOWN]):
-        #     self.soldier_duck = False
-        #     self.soldier_run = True
-        #     self.soldier_jump = False
-
-        if self.soldier_dead:
+        if (userInput[pygame.K_UP]) and not self.soldier_jump:
+            self.music_channel.play(self.sounds_list['jump'])
+            self.soldier_duck = False
+            self.soldier_run = False
+            self.soldier_jump = True
+        elif userInput[pygame.K_DOWN] and not self.soldier_jump:
+            self.soldier_duck = True
+            self.soldier_run = False
+            self.soldier_jump = False
+        elif not (self.soldier_jump or userInput[pygame.K_DOWN]):
+            self.soldier_duck = False
+            self.soldier_run = True
+            self.soldier_jump = False
+        elif self.soldier_dead:
             self.soldier_run = False
             self.soldier_duck = False
             self.soldier_jump = False
@@ -240,12 +235,12 @@ class soldier:
         self.soldier_rect.y = self.Y_POS_DUCK
         self.step_index += 1
 
-    # def run(self):
-    #     self.image = self.run_img[self.step_index]
-    #     self.soldier_rect = self.image.get_rect()
-    #     self.soldier_rect.x = self.X_POS
-    #     self.soldier_rect.y = self.Y_POS
-    #     self.step_index += 1
+    def run(self):
+        self.image = self.run_img[self.step_index]
+        self.soldier_rect = self.image.get_rect()
+        self.soldier_rect.x = self.X_POS
+        self.soldier_rect.y = self.Y_POS
+        self.step_index += 1
 
     def jump(self):
         self.image = self.jump_img[self.jump_index]
@@ -417,8 +412,6 @@ def main():
     pause = False
     fireball_count = 3
 
-    pygame.key.set_repeat(50, 50)
-
     def display_bullet_count():
         font = pygame.font.Font("freesansbold.ttf", 20)
         text = font.render(f'Bullets: {fireball_count}', True, FONT_COLOR)
@@ -440,15 +433,15 @@ def main():
         textRect.center = (900, 40)
         SCREEN.blit(text, textRect)
 
-    # def background():
-    #     global x_pos_bg, y_pos_bg
-    #     image_width = BG.get_width()
-    #     SCREEN.blit(BG, (x_pos_bg, y_pos_bg))
-    #     SCREEN.blit(BG, (image_width + x_pos_bg, y_pos_bg))
-    #     if x_pos_bg <= -image_width:
-    #         SCREEN.blit(BG, (image_width + x_pos_bg, y_pos_bg))
-    #         x_pos_bg = 0
-    #     x_pos_bg -= game_speed
+    def background():
+        global x_pos_bg, y_pos_bg
+        image_width = BG.get_width()
+        SCREEN.blit(BG, (x_pos_bg, y_pos_bg))
+        SCREEN.blit(BG, (image_width + x_pos_bg, y_pos_bg))
+        if x_pos_bg <= -image_width:
+            SCREEN.blit(BG, (image_width + x_pos_bg, y_pos_bg))
+            x_pos_bg = 0
+        x_pos_bg -= game_speed
 
     def unpause():
         nonlocal pause, run
@@ -477,23 +470,15 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
+                run = False
+                paused()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_p:
-                    run = False
-                    paused()
                 if event.key == pygame.K_SPACE and fireball_count > 0:
                     player.shoot()
-                    fireballs.append(Fireball(player.soldier_rect.x, player.soldier_rect.y))
+                    fireballs.append(Fireball(150, 340))
                     fireball_count -= 1
-                if event.key == pygame.K_UP:
-                    print("up")
-                    player.soldier_rect.y = max(player.MIN_Y_POS, player.soldier_rect.y - player.VERTICAL_MOVE_SPEED)
-                if event.key == pygame.K_DOWN:
-                    print("down")
-                    player.soldier_rect.y = min(player.MAX_Y_POS, player.soldier_rect.y + player.VERTICAL_MOVE_SPEED)
-
-
-            # Add bullet items to the game
+        # Add bullet items to the game
         if random.randint(0, 60) == 5:  # Adjust the frequency as needed
             bullet_items.append(BulletItem())
         
@@ -582,7 +567,7 @@ def main():
                     fireballs.remove(fireball)
                     break
 
-        # background()
+        background()
 
         for fireball in fireballs:
             fireball.move()
@@ -603,7 +588,7 @@ def main():
 
         score()
 
-        clock.tick(60)
+        clock.tick(30)
         pygame.display.update()
 
 
@@ -617,7 +602,7 @@ def menu(death_count):
         font = pygame.font.Font("freesansbold.ttf", 30)
 
         if death_count == 0:
-            text = font.render("Space War, Press enter to play", True, FONT_COLOR)
+            text = font.render("Press any Key to Start", True, FONT_COLOR)
         elif death_count > 0:
             text = font.render("Press any Key to Restart", True, FONT_COLOR)
             score = font.render("Your Score: " + str(points), True, FONT_COLOR)
