@@ -682,7 +682,7 @@ def menu(death_count):
                 exit()
             if event.type == pygame.KEYDOWN and death_count == 0:
                 dialogue()
-            if event.type == pygame.KEYDOWN and death_count > 1:
+            if event.type == pygame.KEYDOWN and death_count >= 1:
                 main()
             
 
