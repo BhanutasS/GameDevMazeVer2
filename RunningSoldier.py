@@ -572,6 +572,7 @@ def main():
             obstacle.draw(SCREEN)
             obstacle.update()
             if player.hitbox.colliderect(obstacle.rect):
+                death_count+=1
                 player.dead()
                 pygame.time.delay(1000)
                 menu(death_count)
@@ -652,8 +653,44 @@ def menu(death_count):
                 pygame.display.quit()
                 pygame.quit()
                 exit()
-            if event.type == pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN and death_count == 0:
+                dialogue()
+            if event.type == pygame.KEYDOWN and death_count > 1:
                 main()
+            
+
+def dialogue():
+    global FONT_COLOR
+    run = True
+    while run:
+        FONT_COLOR=(255,255,255)
+        SCREEN.fill((0, 0, 0))
+        font = pygame.font.Font("freesansbold.ttf", 18)
+
+        # text = font.render("""The World is getting invaded by alien. 
+        #                       You are the only one to defeat them. Please help us protect the World!
+        #                       Be careful of meteor, comet and aliens don't get touch by them.
+        #                       You can shoot them if they come close.""", True, FONT_COLOR)
+        # skip = font.render("""Press Enter to Skip""", True, FONT_COLOR)
+        # textRect = text.get_rect()
+        # textRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+        SCREEN.blit(font.render("The World is getting invaded by alien.", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 50, SCREEN_HEIGHT // 2 - 60))
+        SCREEN.blit(font.render("You are the only one to defeat them. Please help us protect the World!", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 50, SCREEN_HEIGHT // 2 - 30))
+        SCREEN.blit(font.render("Be careful of meteor, comet and aliens don't get touch by them.", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 50, SCREEN_HEIGHT // 2))
+        SCREEN.blit(font.render("You can shoot them if they come close.", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 50, SCREEN_HEIGHT // 2 + 30))
+        SCREEN.blit(font.render("Press Any Key to Continue", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 50, SCREEN_HEIGHT // 2 + 60))
+        
+        pygame.display.update()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                pygame.display.quit()
+                pygame.quit()
+                exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    main()
+
 
 
 t1 = threading.Thread(target=menu(death_count=0), daemon=True)
