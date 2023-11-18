@@ -5,6 +5,7 @@ import os
 import random
 import threading
 
+
 from pygame import mixer
 
 import pygame
@@ -80,6 +81,29 @@ bullet_items = []
 fireball_count = 3
 bomb_items=[]
 slowmo_items=[]
+
+class Background():
+    def __init__(self):
+        self.bg_images = [pygame.image.load(os.path.join("assets/Other", "Background.png")) for _ in range(4)]
+        #self.bg_image2 =  [pygame.image.load(os.path.join("assets/Other", "Background.png")) for _ in range(4)]
+        self.rectBGimg = self.bg_images[0].get_rect()
+
+        self.bgY = 0
+        self.bgX = [i * self.rectBGimg.width for i in range(4)]
+        
+        self.bgY2 = self.rectBGimg.height
+
+    def update(self):
+        for i in range(4):
+            self.bgX[i] -= game_speed
+            if self.bgX[i] <= -self.rectBGimg.width:
+                self.bgX[i] = (3 * self.rectBGimg.width) + self.bgX[i]
+
+    def render(self):
+        for i in range(4):
+            SCREEN.blit(self.bg_images[i], (self.bgX[i], self.bgY))
+            SCREEN.blit(self.bg_images[i], (self.bgX[i], self.bgY2))
+
 
 class Fireball:
     def __init__(self, x, y):
@@ -416,6 +440,7 @@ def main():
     death_count = 0
     pause = False
     fireball_count = 3
+    back_ground = Background()
 
     pygame.key.set_repeat(50, 50)
 
@@ -474,6 +499,8 @@ def main():
                     unpause()
 
     while run:
+        
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -491,8 +518,7 @@ def main():
                 if event.key == pygame.K_DOWN:
                     print("down")
                     player.soldier_rect.y = min(player.MAX_Y_POS, player.soldier_rect.y + player.VERTICAL_MOVE_SPEED)
-
-
+        
             # Add bullet items to the game
         if random.randint(0, 60) == 5:  # Adjust the frequency as needed
             bullet_items.append(BulletItem())
@@ -538,6 +564,7 @@ def main():
                     game_speed = 1
                 slowmo_items.remove(item)
         
+        
         # for obstacle in obstacles:
         #     obstacle.draw(SCREEN)
         #     obstacle.update()
@@ -556,9 +583,15 @@ def main():
 
         SCREEN.fill((255, 255, 255))
         userInput = pygame.key.get_pressed()
+        
+        # background()
+        back_ground.update()
+        back_ground.render()
+
 
         player.draw(SCREEN)
         player.update(userInput)
+        
 
         if len(obstacles) == 0:
             if random.randint(0, 2) == 0:
@@ -582,7 +615,6 @@ def main():
                     fireballs.remove(fireball)
                     break
 
-        # background()
 
         for fireball in fireballs:
             fireball.move()
@@ -599,12 +631,14 @@ def main():
         
         cloud.draw(SCREEN)
         cloud.update()
+        
         display_bullet_count()
 
         score()
 
         clock.tick(60)
         pygame.display.update()
+        
 
 
 def menu(death_count):
