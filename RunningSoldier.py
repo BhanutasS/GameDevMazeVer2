@@ -75,11 +75,34 @@ scaled_image_sm = pygame.transform.scale(SLOWMO, (64, 64))
 
 FONT_COLOR=(0,0,0)
 
+class Background():
+    def __init__(self):
+        self.bg_images = [pygame.image.load(os.path.join("assets/Other", "Background.png")) for _ in range(4)]
+        #self.bg_image2 =  [pygame.image.load(os.path.join("assets/Other", "Background.png")) for _ in range(4)]
+        self.rectBGimg = self.bg_images[0].get_rect()
+
+        self.bgY = 0
+        self.bgX = [i * self.rectBGimg.width for i in range(4)]
+
+        self.bgY2 = self.rectBGimg.height
+
+    def update(self):
+        for i in range(4):
+            self.bgX[i] -= game_speed
+            if self.bgX[i] <= -self.rectBGimg.width:
+                self.bgX[i] = (3 * self.rectBGimg.width) + self.bgX[i]
+
+    def render(self):
+        for i in range(4):
+            SCREEN.blit(self.bg_images[i], (self.bgX[i], self.bgY))
+            SCREEN.blit(self.bg_images[i], (self.bgX[i], self.bgY2))
+
 fireballs=[]
 bullet_items = []
 fireball_count = 3
 bomb_items=[]
 slowmo_items=[]
+back_ground = Background()
 
 class Fireball:
     def __init__(self, x, y):
@@ -556,6 +579,10 @@ def main():
 
         SCREEN.fill((255, 255, 255))
         userInput = pygame.key.get_pressed()
+
+        # background()
+        back_ground.update()
+        back_ground.render()
 
         player.draw(SCREEN)
         player.update(userInput)
