@@ -59,9 +59,9 @@ BIRD = [
 
 SHOOT = pygame.image.load(os.path.join("assets/Soldier/r_shoot", "tile007.png"))
 
-CLOUD = pygame.image.load(os.path.join("assets/Other", "cloud_shape3_1.png"))
+CLOUD = pygame.image.load(os.path.join("assets/Other", "Cloud.png"))
 
-BG = pygame.image.load(os.path.join("assets/Other", "Track.png"))
+BG = pygame.image.load(os.path.join("assets/TheProtectorOfWorld/background", "background.png"))
 
 BULLET = pygame.image.load(os.path.join("assets/Other", "bullet_image.png"))
 
@@ -73,11 +73,13 @@ scaled_image = pygame.transform.scale(BOMB, (64, 64))
 
 scaled_image_sm = pygame.transform.scale(SLOWMO, (64, 64))
 
+scaled_bg = pygame.transform.scale(BG, (SCREEN_WIDTH, SCREEN_HEIGHT))
+
 FONT_COLOR=(0,0,0)
 
 class Background():
     def __init__(self):
-        self.bg_images = [pygame.image.load(os.path.join("assets/Other", "Background.png")) for _ in range(4)]
+        self.bg_images = [pygame.image.load(os.path.join("assets/TheProtectorOfWorld/background", "background2.png")) for _ in range(4)]
         #self.bg_image2 =  [pygame.image.load(os.path.join("assets/Other", "Background.png")) for _ in range(4)]
         self.rectBGimg = self.bg_images[0].get_rect()
 
@@ -500,6 +502,9 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+                pygame.display.quit()
+                pygame.quit()
+                exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:
                     run = False
@@ -640,12 +645,12 @@ def menu(death_count):
     global FONT_COLOR
     run = True
     while run:
-        FONT_COLOR=(0,0,0)
+        FONT_COLOR=(255,255,255)
         SCREEN.fill((255, 255, 255))
         font = pygame.font.Font("freesansbold.ttf", 30)
 
         if death_count == 0:
-            text = font.render("Space War, Press enter to play", True, FONT_COLOR)
+            text = font.render("Protector Of World, Press enter to play", True, FONT_COLOR)
         elif death_count > 0:
             text = font.render("Press any Key to Restart", True, FONT_COLOR)
             score = font.render("Your Score: " + str(points), True, FONT_COLOR)
@@ -669,6 +674,7 @@ def menu(death_count):
             SCREEN.blit(hs_score_text, hs_score_rect)
         textRect = text.get_rect()
         textRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+        SCREEN.blit(scaled_bg, (0,0))
         SCREEN.blit(text, textRect)
         SCREEN.blit(RUNNING[0], (SCREEN_WIDTH // 2 - 20, SCREEN_HEIGHT // 2 - 140))
         
