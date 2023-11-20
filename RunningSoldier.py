@@ -56,6 +56,8 @@ scaled_Slime = pygame.transform.scale(Slime, (64,64))
 
 scaled_Alien = pygame.transform.scale(Alien, (64,64))
 
+scaled_Bullet = pygame.transform.scale(BULLET, (64,64))
+
 FONT_COLOR=(0,0,0)
 
 class Background():
@@ -312,7 +314,32 @@ class Big_eye(Obstacle):
     def draw(self, SCREEN):
         SCREEN.blit(self.image, self.rect)
         self.index += 1
+class Boss(Obstacle):
+    def __init__(self, image):
+        super().__init__(image, 0)  # Use type 0 for the boss
+        self.rect.y = SCREEN_HEIGHT // 2  # Initial vertical position
+        self.rect.x = SCREEN_WIDTH -200
+        self.health = 10
+        self.direction = 1
 
+    def update(self):
+        self.rect.y += 2 * self.direction  
+
+        if self.rect.y <= 0 or self.rect.y >= SCREEN_HEIGHT - self.rect.height:
+            self.direction *= -1
+            
+    def is_dead(self):
+        return self.health <= 0
+
+    def draw(self, SCREEN):
+        SCREEN.blit(self.image, self.rect)
+        
+class Boss_Bullet(Obstacle):  
+    def __init__(self, image, boss_rect_y):
+        super().__init__(image, 0) 
+        self.rect.y = boss_rect_y
+        self.health = 1000
+        
 class BulletItem:
     def __init__(self):
         self.image = pygame.image.load(os.path.join("assets/Other", "bullet_image.png"))  # Replace with your item image path
@@ -379,6 +406,8 @@ def main_l1():
     fireball_count = 3
     
     last_obstacle_spawn_time = time.time()
+    
+    boss_appear = False
 
     pygame.key.set_repeat(50, 50)
 
@@ -483,11 +512,18 @@ def main_l1():
         
         for item in bomb_items[:]:  # Use a slice copy to iterate safely when removing items
             if player.soldier_rect.colliderect(item.rect):
-                player.music_channel.play(player.sounds_list['bomb'])
-                points_l1 += len(obstacles)*50
-                obstacles.clear()
-                bomb_items.remove(item)  # Remove the collected item
-        # player.music_channel.play(player.sounds_list['bgm'], loops=-1)
+                if boss_appear == False:
+                    player.music_channel.play(player.sounds_list['bomb'])
+                    points_l1 += len(obstacles)*50
+                    obstacles.clear()
+                    bomb_items.remove(item)  # Remove the collected item
+            # player.music_channel.play(player.sounds_list['bgm'], loops=-1)
+                else:
+                    for obstacle in obstacles:
+                        obstacle.health-=1
+                        print("Obstacle Health:", obstacle.health)
+                    player.music_channel.play(player.sounds_list['bomb'])
+                    bomb_items.remove(item)
         fireballs = [fireball for fireball in fireballs if fireball.x < SCREEN_WIDTH]
 
         SCREEN.fill((255, 255, 255))
@@ -497,19 +533,39 @@ def main_l1():
         back_ground.render()
         player.draw(SCREEN)
         player.update(userInput)
+        
+        if boss_appear == False:
+            if len(obstacles) <= 3:
+                current_time = time.time()
+                time_since_last_spawn = current_time - last_obstacle_spawn_time
+                if time_since_last_spawn > 1.5:  
+                    if random.randint(0, 2) == 0:
+                        obstacles.append(SLIME(scaled_Slime))
+                    elif random.randint(0, 2) == 1:
+                        obstacles.append(ALIEN(scaled_Alien))
+                    else:
+                        obstacles.append(Big_eye(scaled_bigeye))
 
-        if len(obstacles) <= 3:
-            current_time = time.time()
-            time_since_last_spawn = current_time - last_obstacle_spawn_time
-            if time_since_last_spawn > 1.5:  
-                if random.randint(0, 2) == 0:
-                    obstacles.append(SLIME(scaled_Slime))
-                elif random.randint(0, 2) == 1:
-                    obstacles.append(ALIEN(scaled_Alien))
-                else:
-                    obstacles.append(Big_eye(scaled_bigeye))
+                    last_obstacle_spawn_time = current_time
+        else:
+            if len(obstacles) <= 3:
+                current_time = time.time()
+                time_since_last_spawn = current_time - last_obstacle_spawn_time
+                if time_since_last_spawn > 1.5:  
+                    boss_instance = next((obstacle for obstacle in obstacles if isinstance(obstacle, Boss)), None)
+                    obstacles.append(Boss_Bullet(scaled_Bullet, boss_instance.rect.y))
+                    last_obstacle_spawn_time = current_time
+            
+        if points_l1 >= 10 and not boss_appear:
+            obstacles.clear()
 
-                last_obstacle_spawn_time = current_time
+            # Append a boss
+            obstacles.append(Boss(scaled_Slime))
+            boss_appear = True
+            
+        for obstacle in obstacles:
+            if isinstance(obstacle, Boss) and obstacle.is_dead():
+                level_transition()
 
         for obstacle in obstacles:
             obstacle.draw(SCREEN)
@@ -531,9 +587,7 @@ def main_l1():
                     fireballs.remove(fireball)
                     break
         
-        if points_l1 >= 1000:
-            level_transition()
-        # background()
+        
 
         for fireball in fireballs:
             fireball.move()
@@ -568,6 +622,8 @@ def main_l2():
     death_count = 0
     pause = False
     fireball_count = 3
+    
+    boss_appear = False
     
     last_obstacle_spawn_time = time.time()
 
@@ -673,10 +729,18 @@ def main_l2():
         
         for item in bomb_items[:]:  # Use a slice copy to iterate safely when removing items
             if player.soldier_rect.colliderect(item.rect):
-                player.music_channel.play(player.sounds_list['bomb'])
-                points_l2 += len(obstacles)*50
-                obstacles.clear()
-                bomb_items.remove(item)  # Remove the collected item
+                if boss_appear == False:
+                    player.music_channel.play(player.sounds_list['bomb'])
+                    points_l1 += len(obstacles)*50
+                    obstacles.clear()
+                    bomb_items.remove(item)  # Remove the collected item
+            # player.music_channel.play(player.sounds_list['bgm'], loops=-1)
+                else:
+                    for obstacle in obstacles:
+                        obstacle.health-=1
+                        print("Obstacle Health:", obstacle.health)
+                    player.music_channel.play(player.sounds_list['bomb'])
+                    bomb_items.remove(item)
         
         fireballs = [fireball for fireball in fireballs if fireball.x < SCREEN_WIDTH]
 
@@ -689,20 +753,26 @@ def main_l2():
 
         player.draw(SCREEN)
         player.update(userInput)
-
-        if len(obstacles) <= 5:
-            current_time = time.time()
-            time_since_last_spawn = current_time - last_obstacle_spawn_time
-            if time_since_last_spawn > 1.0: 
-                if random.randint(0, 2) == 0:
-                    obstacles.append(SLIME(scaled_Slime))
-                elif random.randint(0, 2) == 1:
-                    obstacles.append(ALIEN(scaled_Alien))
-                else:
-                    obstacles.append(Big_eye(scaled_bigeye))
-
-                
-                last_obstacle_spawn_time = current_time
+        if boss_appear == False:
+            if len(obstacles) <= 5:
+                current_time = time.time()
+                time_since_last_spawn = current_time - last_obstacle_spawn_time
+                if time_since_last_spawn > 1.0: 
+                    if random.randint(0, 2) == 0:
+                        obstacles.append(SLIME(scaled_Slime))
+                    elif random.randint(0, 2) == 1:
+                        obstacles.append(ALIEN(scaled_Alien))
+                    else:
+                        obstacles.append(Big_eye(scaled_bigeye))
+                    last_obstacle_spawn_time = current_time
+            else:
+                if len(obstacles) <= 5:
+                    current_time = time.time()
+                    time_since_last_spawn = current_time - last_obstacle_spawn_time
+                    if time_since_last_spawn > 1.0:  
+                        boss_instance = next((obstacle for obstacle in obstacles if isinstance(obstacle, Boss)), None)
+                        obstacles.append(Boss_Bullet(scaled_Bullet, boss_instance.rect.y))
+                        last_obstacle_spawn_time = current_time
 
         for obstacle in obstacles:
             obstacle.draw(SCREEN)
@@ -723,9 +793,17 @@ def main_l2():
                     fireballs.remove(fireball)
                     break
 
-        # background()
-        if points_l2 >= 100:
-            end_dialogue()
+
+        if points_l2 >= 2500 and not boss_appear:
+            obstacles.clear()
+
+            # Append a boss
+            obstacles.append(Boss(scaled_Slime))
+            boss_appear = True
+            
+        for obstacle in obstacles:
+            if isinstance(obstacle, Boss) and obstacle.is_dead():
+                end_dialogue()
 
         for fireball in fireballs:
             fireball.move()
