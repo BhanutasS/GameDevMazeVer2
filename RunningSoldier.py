@@ -24,42 +24,19 @@ pygame.display.set_icon(Ico)
 
 
 RUNNING = [
-    pygame.image.load(os.path.join("assets/Soldier/r_run", "tile008.png")),
-    pygame.image.load(os.path.join("assets/Soldier/r_run", "tile009.png")),
-    pygame.image.load(os.path.join("assets/Soldier/r_run", "tile010.png")),
-    pygame.image.load(os.path.join("assets/Soldier/r_run", "tile011.png")),
-    pygame.image.load(os.path.join("assets/Soldier/r_run", "tile012.png")),
-    pygame.image.load(os.path.join("assets/Soldier/r_run", "tile013.png")),
-    pygame.image.load(os.path.join("assets/Soldier/r_run", "tile014.png")),
-    pygame.image.load(os.path.join("assets/Soldier/r_run", "tile015.png")),
+    pygame.image.load(os.path.join("assets/TheProtectorOfWorld/ship", "tile006.png")),
+    pygame.image.load(os.path.join("assets/TheProtectorOfWorld/ship", "tile007.png")),
+    pygame.image.load(os.path.join("assets/TheProtectorOfWorld/ship", "tile008.png")),
 ]
 DEAD = [pygame.image.load(os.path.join("assets/Soldier/r_dead", "tile007.png"))]
-JUMPING = [pygame.image.load(os.path.join("assets/Soldier/r_run", "tile012.png"))]
-DUCKING = [
-    pygame.image.load(os.path.join("assets/Soldier/r_duck", "tile004.png"))
-]
 
-SMALL_CACTUS = [
-    pygame.image.load(os.path.join("assets/Other", "desert_rock1.png")),
-]
-LARGE_CACTUS = [
-    pygame.image.load(os.path.join("assets/Other", "middle_lane_rock1_1.png")),
-    pygame.image.load(os.path.join("assets/Other", "middle_lane_rock1_2.png")),
-    pygame.image.load(os.path.join("assets/Other", "middle_lane_rock1_3.png")),
-]
+Slime = pygame.image.load(os.path.join("assets/TheProtectorOfWorld/Monster", "slime.png"))
 
-BIRD = [
-    pygame.image.load(os.path.join("assets/Bird", "tile000.png")),
-    pygame.image.load(os.path.join("assets/Bird", "tile001.png")),
-    pygame.image.load(os.path.join("assets/Bird", "tile002.png")),
-    pygame.image.load(os.path.join("assets/Bird", "tile003.png")),
-    pygame.image.load(os.path.join("assets/Bird", "tile004.png")),
-    pygame.image.load(os.path.join("assets/Bird", "tile005.png")),
-]
+Alien = pygame.image.load(os.path.join("assets/TheProtectorOfWorld/Monster", "alien.png"))
 
-SHOOT = pygame.image.load(os.path.join("assets/Soldier/r_shoot", "tile007.png"))
+BIG_EYE = pygame.image.load(os.path.join("assets/TheProtectorOfWorld/Monster", "bigeye.png"))
 
-CLOUD = pygame.image.load(os.path.join("assets/Other", "Cloud.png"))
+SHOOT = pygame.image.load(os.path.join("assets/TheProtectorOfWorld/ship", "tile007.png"))
 
 BG = pygame.image.load(os.path.join("assets/TheProtectorOfWorld/background", "background.png"))
 
@@ -70,6 +47,12 @@ BOMB = pygame.image.load(os.path.join("assets/Other","Bomb_03.png"))
 scaled_image = pygame.transform.scale(BOMB, (64, 64))
 
 scaled_bg = pygame.transform.scale(BG, (SCREEN_WIDTH, SCREEN_HEIGHT))
+
+scaled_bigeye = pygame.transform.scale(BIG_EYE, (64, 64))
+
+scaled_Slime = pygame.transform.scale(Slime, (64,64))
+
+scaled_Alien = pygame.transform.scale(Alien, (64,64))
 
 FONT_COLOR=(0,0,0)
 
@@ -100,6 +83,15 @@ bullet_items = []
 fireball_count = 3
 bomb_items=[]
 back_ground = Background()
+
+# class music_bgm:
+#     def __init__(self):
+#         self.music_channel = mixer.Channel(0)
+#         self.music_channel.set_volume(0.2)
+
+#         self.sounds_list = {
+#             'bgm':mixer.Sound('sounds/bgm.wav')
+#         }
 
 class Fireball:
     def __init__(self, x, y):
@@ -141,30 +133,20 @@ class Bomb:
     def collides_with(self, obstacle):
         # Use the rect attribute for collision detection
         return self.rect.colliderect(obstacle.rect)
-    
-class music_bgm:
-    def __init__(self):
-        self.music_channel = mixer.Channel(0)
-        self.music_channel.set_volume(0.2)
-
-        self.sounds_list = {
-            'bgm':mixer.Sound('sounds/bgm.wav')
-        }
 
 class soldier:
 
     X_POS = 80
     Y_POS = 330
-    Y_POS_DUCK = 370
     JUMP_VEL = 8.5
-    MAX_Y_POS = 500  # Change as per your screen size and game design
-    MIN_Y_POS = 100  # Change as per your screen size and game design
+    MAX_Y_POS = 550  
+    MIN_Y_POS = 100  
+    MAX_X_POS = 1000  
+    MIN_X_POS = 100 
     VERTICAL_MOVE_SPEED = 10  # Speed of vertical movement
 
     def __init__(self):
-        self.duck_img = DUCKING
         self.run_img = RUNNING
-        self.jump_img = JUMPING
         self.dead_img = DEAD
         self.shoot_img = SHOOT
 
@@ -193,8 +175,7 @@ class soldier:
             'jump': mixer.Sound('sounds/jump.wav'),
             'next_level': mixer.Sound('sounds/next_level.wav'),
             'shot': mixer.Sound('sounds/shot.wav'),
-            'slow': mixer.Sound('sounds/slow.wav'),
-            'bgm':mixer.Sound('sounds/bgm.wav')
+            'slow': mixer.Sound('sounds/slow.wav')
         }
         
         self.hit=False
@@ -220,6 +201,10 @@ class soldier:
             self.soldier_rect.y -= self.VERTICAL_MOVE_SPEED
         elif userInput[pygame.K_DOWN] and self.soldier_rect.y < self.MAX_Y_POS:
             self.soldier_rect.y += self.VERTICAL_MOVE_SPEED
+        elif userInput[pygame.K_RIGHT] and self.soldier_rect.x < self.MAX_X_POS:
+            self.soldier_rect.x += self.VERTICAL_MOVE_SPEED
+        elif userInput[pygame.K_LEFT] and self.soldier_rect.x > self.MIN_X_POS:
+            self.soldier_rect.x -= self.VERTICAL_MOVE_SPEED
         
         if self.soldier_shoot:
             self.shoot()
@@ -241,19 +226,12 @@ class soldier:
             self.soldier_duck = False
             self.soldier_jump = False
             self.soldier_dead = True
-            
-    def duck(self):
-        self.image = self.duck_img[0]
-        self.soldier_rect = self.image.get_rect()
-        self.soldier_rect.x = self.X_POS
-        self.soldier_rect.y = self.Y_POS_DUCK
-        self.step_index += 1
 
     # def run(self):
+    #     if self.step_index == 2:
+    #         self.step_index = 0
     #     self.image = self.run_img[self.step_index]
     #     self.soldier_rect = self.image.get_rect()
-    #     self.soldier_rect.x = self.X_POS
-    #     self.soldier_rect.y = self.Y_POS
     #     self.step_index += 1
 
     def jump(self):
@@ -277,31 +255,13 @@ class soldier:
     def draw(self, SCREEN):
         SCREEN.blit(self.image, (self.soldier_rect.x, self.soldier_rect.y))
 
-
-class Cloud:
-    def __init__(self):
-        self.x = SCREEN_WIDTH + random.randint(800, 1000)
-        self.y = random.randint(50, 100)
-        self.image = CLOUD
-        self.width = self.image.get_width()
-
-    def update(self):
-        self.x -= game_speed
-        if self.x < -self.width:
-            self.x = SCREEN_WIDTH + random.randint(2500, 3000)
-            self.y = random.randint(50, 100)
-
-    def draw(self, SCREEN):
-        SCREEN.blit(self.image, (self.x, self.y))
-
-
 class Obstacle:
-    def __init__(self, image, type,health):
+    def __init__(self, image, type):
         self.image = image
         self.type = type
-        self.rect = self.image[self.type].get_rect()
-        self.rect.x = SCREEN_WIDTH
-        self.health = health
+        self.rect = self.image.get_rect()
+        self.rect.x = random.randint(SCREEN_WIDTH/2-100,SCREEN_WIDTH)
+        self.health = 0
 
     def update(self):
         self.rect.x -= game_speed
@@ -309,38 +269,34 @@ class Obstacle:
             obstacles.pop()
 
     def draw(self, SCREEN):
-        SCREEN.blit(self.image[self.type], self.rect)
+        SCREEN.blit(self.image, self.rect)
 
 
-class SmallCactus(Obstacle):
+class SLIME(Obstacle):
     def __init__(self, image):
-        self.health = 5
-        super().__init__(image, 0, self.health)
-        self.rect.y = 325
+        super().__init__(image, 0)
+        self.rect.y = random.randint(200,SCREEN_HEIGHT-200)
+        self.health = 1
 
 
-class LargeCactus(Obstacle):
+class ALIEN(Obstacle):
     def __init__(self, image):
         self.type = random.randint(0, 2)
-        self.health = 5
-        super().__init__(image, self.type, self.health)
-        self.rect.y = 325
+        super().__init__(image, self.type)
+        self.rect.y = random.randint(200,SCREEN_HEIGHT-200)
+        self.health = 2
 
 
-class Bird(Obstacle):
-    BIRD_HEIGHTS = [250, 270, 300]
-
+class Big_eye(Obstacle):
     def __init__(self, image):
         self.type = 0
-        self.health = 2
-        super().__init__(image, self.type, self.health)
-        self.rect.y = random.choice(self.BIRD_HEIGHTS)
+        super().__init__(image, self.type)
+        self.rect.y = random.randint(200,SCREEN_HEIGHT-200)
         self.index = 0
+        self.health = 4
 
     def draw(self, SCREEN):
-        if self.index >= 9:
-            self.index = 0
-        SCREEN.blit(self.image[self.index // 5], self.rect)
+        SCREEN.blit(self.image, self.rect)
         self.index += 1
 
 class BulletItem:
@@ -397,8 +353,7 @@ def main_l1():
     run = True
     clock = pygame.time.Clock()
     player = soldier()
-    music = music_bgm()
-    cloud = Cloud()
+    # music = music_bgm()
     game_speed = 2
     x_pos_bg = 0
     y_pos_bg = 380
@@ -420,7 +375,7 @@ def main_l1():
     def score_l1():
         global points_l1, game_speed, distance_l1
         distance_l1 += 1
-        if distance_l1 % 100 == 0:
+        if distance_l1 % 300 == 0:
             game_speed += 1
         # with open("score.txt", "r") as f:
         #     score_ints = [int(x) for x in f.read().split()]  
@@ -482,10 +437,8 @@ def main_l1():
                     fireballs.append(Fireball(player.soldier_rect.x, player.soldier_rect.y))
                     fireball_count -= 1
                 if event.key == pygame.K_UP:
-                    print("up")
                     player.soldier_rect.y = max(player.MIN_Y_POS, player.soldier_rect.y - player.VERTICAL_MOVE_SPEED)
                 if event.key == pygame.K_DOWN:
-                    print("down")
                     player.soldier_rect.y = min(player.MAX_Y_POS, player.soldier_rect.y + player.VERTICAL_MOVE_SPEED)
 
 
@@ -515,9 +468,10 @@ def main_l1():
         for item in bomb_items[:]:  # Use a slice copy to iterate safely when removing items
             if player.soldier_rect.colliderect(item.rect):
                 player.music_channel.play(player.sounds_list['bomb'])
+                points_l1 += len(obstacles)*50
                 obstacles.clear()
                 bomb_items.remove(item)  # Remove the collected item
-        player.music_channel.play(player.sounds_list['bgm'], loops=-1)
+        # player.music_channel.play(player.sounds_list['bgm'], loops=-1)
         fireballs = [fireball for fireball in fireballs if fireball.x < SCREEN_WIDTH]
 
         SCREEN.fill((255, 255, 255))
@@ -529,12 +483,13 @@ def main_l1():
         player.update(userInput)
 
         if len(obstacles) == 0:
-            if random.randint(0, 2) == 0:
-                obstacles.append(SmallCactus(SMALL_CACTUS))
-            elif random.randint(0, 2) == 1:
-                obstacles.append(LargeCactus(LARGE_CACTUS))
-            elif random.randint(0, 2) == 2:
-                obstacles.append(Bird(BIRD))
+            for i in range(5):
+                if random.randint(0, 2) == 0:
+                    obstacles.append(SLIME(scaled_Slime))
+                if random.randint(0, 2) == 1:
+                    obstacles.append(ALIEN(scaled_Alien))
+                if random.randint(0, 2) == 2:
+                    obstacles.append(Big_eye(scaled_bigeye))
 
         for obstacle in obstacles:
             obstacle.draw(SCREEN)
@@ -556,7 +511,7 @@ def main_l1():
                     fireballs.remove(fireball)
                     break
         
-        if points_l1 >= 100:
+        if points_l1 >= 1000:
             level_transition()
         # background()
 
@@ -569,9 +524,6 @@ def main_l1():
         
         for item in bullet_items[:]:  # Use a slice copy to iterate safely when removing items
             item.draw(SCREEN)
-        
-        cloud.draw(SCREEN)
-        cloud.update()
         display_bullet_count()
 
         score_l1()
@@ -587,7 +539,6 @@ def main_l2():
     run = True
     clock = pygame.time.Clock()
     player = soldier()
-    cloud = Cloud()
     game_speed = 2
     x_pos_bg = 0
     y_pos_bg = 380
@@ -609,7 +560,7 @@ def main_l2():
     def score_l2():
         global points_l2, game_speed, distance_l2
         distance_l2 += 1
-        if distance_l2 % 100 == 0:
+        if distance_l2 % 200 == 0:
             game_speed += 1
         # with open("score.txt", "r") as f:
         #     score_ints = [int(x) for x in f.read().split()]  
@@ -671,10 +622,8 @@ def main_l2():
                     fireballs.append(Fireball(player.soldier_rect.x, player.soldier_rect.y))
                     fireball_count -= 1
                 if event.key == pygame.K_UP:
-                    print("up")
                     player.soldier_rect.y = max(player.MIN_Y_POS, player.soldier_rect.y - player.VERTICAL_MOVE_SPEED)
                 if event.key == pygame.K_DOWN:
-                    print("down")
                     player.soldier_rect.y = min(player.MAX_Y_POS, player.soldier_rect.y + player.VERTICAL_MOVE_SPEED)
 
 
@@ -704,6 +653,7 @@ def main_l2():
         for item in bomb_items[:]:  # Use a slice copy to iterate safely when removing items
             if player.soldier_rect.colliderect(item.rect):
                 player.music_channel.play(player.sounds_list['bomb'])
+                points_l2 += len(obstacles)*50
                 obstacles.clear()
                 bomb_items.remove(item)  # Remove the collected item
         
@@ -720,12 +670,13 @@ def main_l2():
         player.update(userInput)
 
         if len(obstacles) == 0:
-            if random.randint(0, 2) == 0:
-                obstacles.append(SmallCactus(SMALL_CACTUS))
-            elif random.randint(0, 2) == 1:
-                obstacles.append(LargeCactus(LARGE_CACTUS))
-            elif random.randint(0, 2) == 2:
-                obstacles.append(Bird(BIRD))
+            for i in range(5):
+                if random.randint(0, 2) == 0:
+                    obstacles.append(SLIME(scaled_Slime))
+                if random.randint(0, 2) == 1:
+                    obstacles.append(ALIEN(scaled_Alien))
+                if random.randint(0, 2) == 2:
+                    obstacles.append(Big_eye(scaled_bigeye))
 
         for obstacle in obstacles:
             obstacle.draw(SCREEN)
@@ -747,6 +698,8 @@ def main_l2():
                     break
 
         # background()
+        if points_l2 >= 100:
+            end_dialogue()
 
         for fireball in fireballs:
             fireball.move()
@@ -757,9 +710,7 @@ def main_l2():
         
         for item in bullet_items[:]:  # Use a slice copy to iterate safely when removing items
             item.draw(SCREEN)
-        
-        cloud.draw(SCREEN)
-        cloud.update()
+
         display_bullet_count()
 
         score_l2()
@@ -852,7 +803,7 @@ def end_dialogue():
         SCREEN.blit(font.render("Congratulations!!! You defeated the enemies.", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 100, SCREEN_HEIGHT // 2 - 60))
         SCREEN.blit(font.render("The world is save for now", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 100, SCREEN_HEIGHT // 2 - 30))
         SCREEN.blit(font.render("We will prepare the next threat.", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 100, SCREEN_HEIGHT // 2))
-        SCREEN.blit(font.render("Press Any Key to Continue", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 100, SCREEN_HEIGHT // 2 + 60))
+        SCREEN.blit(font.render("Press Any Key to Retry", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 100, SCREEN_HEIGHT // 2 + 60))
         
         pygame.display.update()
         for event in pygame.event.get():
@@ -862,7 +813,7 @@ def end_dialogue():
                 pygame.quit()
                 exit()
             if event.type == pygame.KEYDOWN:
-                menu(death_count=0)
+                menu(0)
 
 def dialogue():
     global FONT_COLOR
