@@ -75,7 +75,7 @@ FONT_COLOR=(0,0,0)
 
 class Background():
     def __init__(self):
-        self.bg_images = [pygame.image.load(os.path.join("assets/TheProtectorOfWorld/background", "background2.png")) for _ in range(4)]
+        self.bg_images = [pygame.image.load(os.path.join("assets/TheProtectorOfWorld/background/background3.PNG")) for _ in range(4)]
         #self.bg_image2 =  [pygame.image.load(os.path.join("assets/Other", "Background.png")) for _ in range(4)]
         self.rectBGimg = self.bg_images[0].get_rect()
 
