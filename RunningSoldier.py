@@ -290,7 +290,7 @@ class Obstacle:
         self.image = image
         self.type = type
         self.rect = self.image[self.type].get_rect()
-        self.rect.x = SCREEN_WIDTH
+        self.rect.x = random.randint(200,SCREEN_WIDTH-200)
 
     def update(self):
         self.rect.x -= game_speed
@@ -304,23 +304,21 @@ class Obstacle:
 class SmallCactus(Obstacle):
     def __init__(self, image):
         super().__init__(image, 0)
-        self.rect.y = 325
+        self.rect.y = random.randint(200,SCREEN_HEIGHT-200)
 
 
 class LargeCactus(Obstacle):
     def __init__(self, image):
         self.type = random.randint(0, 2)
         super().__init__(image, self.type)
-        self.rect.y = 325
+        self.rect.y = random.randint(200,SCREEN_HEIGHT-200)
 
 
 class Bird(Obstacle):
-    BIRD_HEIGHTS = [250, 270, 300]
-
     def __init__(self, image):
         self.type = 0
         super().__init__(image, self.type)
-        self.rect.y = random.choice(self.BIRD_HEIGHTS)
+        self.rect.y = random.randint(200,SCREEN_HEIGHT-200)
         self.index = 0
 
     def draw(self, SCREEN):
