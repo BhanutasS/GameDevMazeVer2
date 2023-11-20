@@ -141,6 +141,15 @@ class Bomb:
     def collides_with(self, obstacle):
         # Use the rect attribute for collision detection
         return self.rect.colliderect(obstacle.rect)
+    
+class music_bgm:
+    def __init__(self):
+        self.music_channel = mixer.Channel(0)
+        self.music_channel.set_volume(0.2)
+
+        self.sounds_list = {
+            'bgm':mixer.Sound('sounds/bgm.wav')
+        }
 
 class soldier:
 
@@ -184,7 +193,8 @@ class soldier:
             'jump': mixer.Sound('sounds/jump.wav'),
             'next_level': mixer.Sound('sounds/next_level.wav'),
             'shot': mixer.Sound('sounds/shot.wav'),
-            'slow': mixer.Sound('sounds/slow.wav')
+            'slow': mixer.Sound('sounds/slow.wav'),
+            'bgm':mixer.Sound('sounds/bgm.wav')
         }
         
         self.hit=False
@@ -286,11 +296,12 @@ class Cloud:
 
 
 class Obstacle:
-    def __init__(self, image, type):
+    def __init__(self, image, type,health):
         self.image = image
         self.type = type
         self.rect = self.image[self.type].get_rect()
         self.rect.x = SCREEN_WIDTH
+        self.health = health
 
     def update(self):
         self.rect.x -= game_speed
@@ -303,14 +314,16 @@ class Obstacle:
 
 class SmallCactus(Obstacle):
     def __init__(self, image):
-        super().__init__(image, 0)
+        self.health = 5
+        super().__init__(image, 0, self.health)
         self.rect.y = 325
 
 
 class LargeCactus(Obstacle):
     def __init__(self, image):
         self.type = random.randint(0, 2)
-        super().__init__(image, self.type)
+        self.health = 5
+        super().__init__(image, self.type, self.health)
         self.rect.y = 325
 
 
@@ -319,7 +332,8 @@ class Bird(Obstacle):
 
     def __init__(self, image):
         self.type = 0
-        super().__init__(image, self.type)
+        self.health = 2
+        super().__init__(image, self.type, self.health)
         self.rect.y = random.choice(self.BIRD_HEIGHTS)
         self.index = 0
 
@@ -383,6 +397,7 @@ def main_l1():
     run = True
     clock = pygame.time.Clock()
     player = soldier()
+    music = music_bgm()
     cloud = Cloud()
     game_speed = 2
     x_pos_bg = 0
@@ -502,16 +517,14 @@ def main_l1():
                 player.music_channel.play(player.sounds_list['bomb'])
                 obstacles.clear()
                 bomb_items.remove(item)  # Remove the collected item
-        
+        player.music_channel.play(player.sounds_list['bgm'], loops=-1)
         fireballs = [fireball for fireball in fireballs if fireball.x < SCREEN_WIDTH]
 
         SCREEN.fill((255, 255, 255))
         userInput = pygame.key.get_pressed()
-
         # background()
         back_ground.update()
         back_ground.render()
-
         player.draw(SCREEN)
         player.update(userInput)
 
@@ -531,10 +544,15 @@ def main_l1():
                 player.dead()
                 pygame.time.delay(1000)
                 menu(death_count)
+
             for fireball in fireballs:
                 if fireball.collides_with(obstacle):
-                    points_l1 += 50
-                    obstacles.remove(obstacle)
+                    if obstacle.health>0:
+                        obstacle.health-=1
+                        print("Obstacle Health:", obstacle.health)
+                    else:
+                        obstacles.remove(obstacle)
+                        points_l1 += 50
                     fireballs.remove(fireball)
                     break
         
@@ -560,6 +578,7 @@ def main_l1():
 
         clock.tick(60)
         pygame.display.update()
+    
 
 def main_l2():
     global fireballs, fireball_count, death_count, distance_l2
@@ -569,7 +588,7 @@ def main_l2():
     clock = pygame.time.Clock()
     player = soldier()
     cloud = Cloud()
-    game_speed = 10
+    game_speed = 2
     x_pos_bg = 0
     y_pos_bg = 380
     points_l2 = 0
@@ -718,8 +737,12 @@ def main_l2():
                 menu(death_count)
             for fireball in fireballs:
                 if fireball.collides_with(obstacle):
-                    points_l2 += 50
-                    obstacles.remove(obstacle)
+                    if obstacle.health>0:
+                        obstacle.health-=1
+                        print("Obstacle Health:", obstacle.health)
+                    else:
+                        obstacles.remove(obstacle)
+                        points_l2 += 50
                     fireballs.remove(fireball)
                     break
 
