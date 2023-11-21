@@ -19,7 +19,7 @@ SCREEN_HEIGHT = 600
 SCREEN_WIDTH = 1100
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-pygame.display.set_caption("Running Soldier")
+pygame.display.set_caption("The Protector of World")
 
 Ico = pygame.image.load("assets/Soldier/r_run/tile008.png")
 pygame.display.set_icon(Ico)
@@ -303,6 +303,17 @@ class SLIME(Obstacle):
         super().__init__(image, 0)
         self.rect.y = random.randint(200,SCREEN_HEIGHT-200)
         self.health = 1
+        self.direction = 1
+        
+    def update(self):
+        self.rect.y += 1 * self.direction  
+
+        if self.rect.y <= 0 or self.rect.y >= SCREEN_HEIGHT - self.rect.height:
+            self.direction *= -1
+            
+        self.rect.x -= game_speed
+        if self.rect.x < -self.rect.width:
+            obstacles.remove(self)
 
 
 class ALIEN(Obstacle):
@@ -522,17 +533,21 @@ def main_l1():
         if random.randint(0, 60) == 5:  # Adjust the frequency as needed
             bullet_items.append(BulletItem())
         
-        if random.randint(0, 200) == 5:  # Adjust the frequency as needed
-            bomb_items.append(BombItem())
+        if boss_appear == False:
+            if random.randint(0, 200) == 5:  # Adjust the frequency as needed
+                bomb_items.append(BombItem())
 
         # Update and draw bullet items
         for item in bullet_items[:]:  # Use a slice copy to iterate safely when removing items
             item.update()
             item.draw(SCREEN)
         
-        for item in bomb_items[:]:
-            item.update()
-            item.draw(SCREEN)
+        if boss_appear == False:
+            for item in bomb_items[:]:
+                item.update()
+                item.draw(SCREEN)
+        else:
+            bomb_items.clear()
 
         # Check for collisions with bullet items
         for item in bullet_items[:]:  # Use a slice copy to iterate safely when removing items
@@ -545,7 +560,7 @@ def main_l1():
             if player.soldier_rect.colliderect(item.rect):
                 if boss_appear == False:
                     player.music_channel.play(player.sounds_list['bomb'])
-                    points_l1 += len(obstacles)*50
+                    points_l1 += len(obstacles)*20
                     obstacles.clear()
                     bomb_items.remove(item)  # Remove the collected item
             # player.music_channel.play(player.sounds_list['bgm'], loops=-1)
@@ -609,7 +624,7 @@ def main_l1():
 
             for fireball in fireballs:
                 if fireball.collides_with(obstacle):
-                    if obstacle.health>0:
+                    if obstacle.health>1:
                         obstacle.health-=1
                         print("Obstacle Health:", obstacle.health)
                     else:
@@ -738,18 +753,20 @@ def main_l2():
             # Add bullet items to the game
         if random.randint(0, 60) == 5:  # Adjust the frequency as needed
             bullet_items.append(BulletItem())
-        
-        if random.randint(0, 200) == 5:  # Adjust the frequency as needed
-            bomb_items.append(BombItem())
+        if boss_appear == False:
+            if random.randint(0, 200) == 5:  # Adjust the frequency as needed
+                bomb_items.append(BombItem())
 
         # Update and draw bullet items
         for item in bullet_items[:]:  # Use a slice copy to iterate safely when removing items
             item.update()
             item.draw(SCREEN)
-        
-        for item in bomb_items[:]:
-            item.update()
-            item.draw(SCREEN)
+        if boss_appear == False:
+            for item in bomb_items[:]:
+                item.update()
+                item.draw(SCREEN)
+        else:
+            bomb_items.clear()
 
         # Check for collisions with bullet items
         for item in bullet_items[:]:  # Use a slice copy to iterate safely when removing items
@@ -762,7 +779,7 @@ def main_l2():
             if player.soldier_rect.colliderect(item.rect):
                 if boss_appear == False:
                     player.music_channel.play(player.sounds_list['bomb'])
-                    points_l2 += len(obstacles)*50
+                    points_l2 += len(obstacles)*20
                     obstacles.clear()
                     bomb_items.remove(item)  # Remove the collected item
             # player.music_channel.play(player.sounds_list['bgm'], loops=-1)
@@ -816,7 +833,7 @@ def main_l2():
                 menu(death_count)
             for fireball in fireballs:
                 if fireball.collides_with(obstacle):
-                    if obstacle.health>0:
+                    if obstacle.health>1:
                         obstacle.health-=1
                         print("Obstacle Health:", obstacle.health)
                     else:
