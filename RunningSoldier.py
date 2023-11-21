@@ -44,6 +44,12 @@ BG = pygame.image.load(os.path.join("assets/TheProtectorOfWorld/background", "ba
 
 BULLET = pygame.image.load(os.path.join("assets/Other", "bullet_image.png"))
 
+BULLET_Boss = pygame.image.load(os.path.join("assets/Boss", "bossbulet.png"))
+
+Boss1 = pygame.image.load(os.path.join("assets/Boss", "BossLevel1.png"))
+
+Boss2 = pygame.image.load(os.path.join("assets/Boss", "BossLevel2.png"))
+
 BOMB = pygame.image.load(os.path.join("assets/Other","Bomb_03.png"))
 
 scaled_image = pygame.transform.scale(BOMB, (64, 64))
@@ -56,7 +62,11 @@ scaled_Slime = pygame.transform.scale(Slime, (64,64))
 
 scaled_Alien = pygame.transform.scale(Alien, (64,64))
 
-scaled_Bullet = pygame.transform.scale(BULLET, (64,64))
+scaled_Bullet = pygame.transform.scale(BULLET_Boss, (98,98))
+
+scaled_Boss1 = pygame.transform.scale(Boss1, (128,128))
+
+scaled_Boss2 = pygame.transform.scale(Boss2, (128,128))
 
 FONT_COLOR=(0,0,0)
 
@@ -319,7 +329,7 @@ class Boss(Obstacle):
         super().__init__(image, 0)  # Use type 0 for the boss
         self.rect.y = SCREEN_HEIGHT // 2  # Initial vertical position
         self.rect.x = SCREEN_WIDTH -200
-        self.health = 10
+        self.health = 4
         self.direction = 1
 
     def update(self):
@@ -334,10 +344,31 @@ class Boss(Obstacle):
     def draw(self, SCREEN):
         SCREEN.blit(self.image, self.rect)
         
+class BossStage2(Obstacle):
+    def __init__(self, image):
+        super().__init__(image, 0)  # Use type 0 for the boss
+        self.rect.y = SCREEN_HEIGHT // 2  # Initial vertical position
+        self.rect.x = SCREEN_WIDTH -200
+        self.health = 8
+        self.direction = 1
+
+    def update(self):
+        self.rect.y += 4 * self.direction  
+
+        if self.rect.y <= 0 or self.rect.y >= SCREEN_HEIGHT - self.rect.height:
+            self.direction *= -1
+            
+    def is_dead(self):
+        return self.health <= 0
+
+    def draw(self, SCREEN):
+        SCREEN.blit(self.image, self.rect)
+        
 class Boss_Bullet(Obstacle):  
     def __init__(self, image, boss_rect_y):
         super().__init__(image, 0) 
         self.rect.y = boss_rect_y
+        self.rect.x = SCREEN_WIDTH -200
         self.health = 1000
         
 class BulletItem:
@@ -556,11 +587,11 @@ def main_l1():
                     obstacles.append(Boss_Bullet(scaled_Bullet, boss_instance.rect.y))
                     last_obstacle_spawn_time = current_time
             
-        if points_l1 >= 10 and not boss_appear:
+        if points_l1 >= 1000 and not boss_appear:
             obstacles.clear()
 
             # Append a boss
-            obstacles.append(Boss(scaled_Slime))
+            obstacles.append(Boss(scaled_Boss1))
             boss_appear = True
             
         for obstacle in obstacles:
@@ -731,7 +762,7 @@ def main_l2():
             if player.soldier_rect.colliderect(item.rect):
                 if boss_appear == False:
                     player.music_channel.play(player.sounds_list['bomb'])
-                    points_l1 += len(obstacles)*50
+                    points_l2 += len(obstacles)*50
                     obstacles.clear()
                     bomb_items.remove(item)  # Remove the collected item
             # player.music_channel.play(player.sounds_list['bgm'], loops=-1)
@@ -765,14 +796,15 @@ def main_l2():
                     else:
                         obstacles.append(Big_eye(scaled_bigeye))
                     last_obstacle_spawn_time = current_time
-            else:
-                if len(obstacles) <= 5:
-                    current_time = time.time()
-                    time_since_last_spawn = current_time - last_obstacle_spawn_time
-                    if time_since_last_spawn > 1.0:  
-                        boss_instance = next((obstacle for obstacle in obstacles if isinstance(obstacle, Boss)), None)
-                        obstacles.append(Boss_Bullet(scaled_Bullet, boss_instance.rect.y))
-                        last_obstacle_spawn_time = current_time
+        else:
+            if len(obstacles) <= 2:
+                current_time = time.time()
+                time_since_last_spawn = current_time - last_obstacle_spawn_time
+                if time_since_last_spawn > 1.0:  
+                    boss_instance = next((obstacle for obstacle in obstacles if isinstance(obstacle, BossStage2)), None)
+                    obstacles.append(Boss_Bullet(scaled_Bullet, boss_instance.rect.y-30))
+                    obstacles.append(Boss_Bullet(scaled_Bullet, boss_instance.rect.y+30))
+                    last_obstacle_spawn_time = current_time
 
         for obstacle in obstacles:
             obstacle.draw(SCREEN)
@@ -798,11 +830,11 @@ def main_l2():
             obstacles.clear()
 
             # Append a boss
-            obstacles.append(Boss(scaled_Slime))
+            obstacles.append(BossStage2(scaled_Boss2))
             boss_appear = True
             
         for obstacle in obstacles:
-            if isinstance(obstacle, Boss) and obstacle.is_dead():
+            if isinstance(obstacle, BossStage2) and obstacle.is_dead():
                 end_dialogue()
 
         for fireball in fireballs:
