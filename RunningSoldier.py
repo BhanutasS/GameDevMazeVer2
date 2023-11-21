@@ -62,7 +62,7 @@ scaled_Slime = pygame.transform.scale(Slime, (64,64))
 
 scaled_Alien = pygame.transform.scale(Alien, (64,64))
 
-scaled_Bullet = pygame.transform.scale(BULLET_Boss, (98,98))
+scaled_Bullet = pygame.transform.scale(BULLET_Boss, (32,32))
 
 scaled_Boss1 = pygame.transform.scale(Boss1, (128,128))
 
@@ -310,7 +310,7 @@ class ALIEN(Obstacle):
         self.type = random.randint(0, 2)
         super().__init__(image, self.type)
         self.rect.y = random.randint(200,SCREEN_HEIGHT-200)
-        self.health = 2
+        self.health = 1
 
 
 class Big_eye(Obstacle):
@@ -319,7 +319,7 @@ class Big_eye(Obstacle):
         super().__init__(image, self.type)
         self.rect.y = random.randint(200,SCREEN_HEIGHT-200)
         self.index = 0
-        self.health = 4
+        self.health = 2
 
     def draw(self, SCREEN):
         SCREEN.blit(self.image, self.rect)
@@ -587,7 +587,7 @@ def main_l1():
                     obstacles.append(Boss_Bullet(scaled_Bullet, boss_instance.rect.y))
                     last_obstacle_spawn_time = current_time
             
-        if points_l1 >= 1000 and not boss_appear:
+        if points_l1 >= 500 and not boss_appear:
             obstacles.clear()
 
             # Append a boss
@@ -826,7 +826,7 @@ def main_l2():
                     break
 
 
-        if points_l2 >= 2500 and not boss_appear:
+        if points_l2 >= 1000 and not boss_appear:
             obstacles.clear()
 
             # Append a boss
@@ -916,7 +916,7 @@ def level_transition():
         SCREEN.blit(font.render("You defeated the first wave of the enemies.", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 100, SCREEN_HEIGHT // 2 - 60))
         SCREEN.blit(font.render("The next and final wave will be brutal and hard to defeat", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 100, SCREEN_HEIGHT // 2 - 30))
         SCREEN.blit(font.render("All hope lies with you.", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 100, SCREEN_HEIGHT // 2))
-        SCREEN.blit(font.render("Defeat them and save the world. Collect 2500 points to save the world", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 100, SCREEN_HEIGHT // 2 + 30))
+        SCREEN.blit(font.render("Defeat them and save the world. Collect 1000 points to save the world", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 100, SCREEN_HEIGHT // 2 + 30))
         SCREEN.blit(font.render("Press Any Key to Continue", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 100, SCREEN_HEIGHT // 2 + 60))
         
         pygame.display.update()
@@ -937,9 +937,9 @@ def end_dialogue():
         SCREEN.fill((0, 0, 0))
         font = pygame.font.Font("freesansbold.ttf", 18)
         SCREEN.blit(font.render("Congratulations!!! You defeated the enemies.", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 100, SCREEN_HEIGHT // 2 - 60))
-        SCREEN.blit(font.render("The world is save for now", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 100, SCREEN_HEIGHT // 2 - 30))
-        SCREEN.blit(font.render("We will prepare the next threat.", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 100, SCREEN_HEIGHT // 2))
-        SCREEN.blit(font.render("Press Any Key to Retry", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 100, SCREEN_HEIGHT // 2 + 60))
+        SCREEN.blit(font.render("The world is save for now.", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 100, SCREEN_HEIGHT // 2 - 30))
+        #SCREEN.blit(font.render("We will prepare the next threat.", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 100, SCREEN_HEIGHT // 2))
+        SCREEN.blit(font.render("Press Any Key to Retry", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 100, SCREEN_HEIGHT // 2))
         
         pygame.display.update()
         for event in pygame.event.get():
@@ -968,8 +968,8 @@ def dialogue():
         # textRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
         SCREEN.blit(font.render("The World is getting invaded by alien.", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 100, SCREEN_HEIGHT // 2 - 60))
         SCREEN.blit(font.render("You are the only one to defeat them. Please help us protect the World!", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 100, SCREEN_HEIGHT // 2 - 30))
-        SCREEN.blit(font.render("Be careful of meteor, comet and aliens don't get touch by them.", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 100, SCREEN_HEIGHT // 2))
-        SCREEN.blit(font.render("You can shoot them if they come close. Collect 1000 points to proceed to next level", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 100, SCREEN_HEIGHT // 2 + 30))
+        SCREEN.blit(font.render("Be careful of aliens don't get touch by them.", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 100, SCREEN_HEIGHT // 2))
+        SCREEN.blit(font.render("You can shoot them if they come close. Collect 500 points to proceed to next level", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 100, SCREEN_HEIGHT // 2 + 30))
         SCREEN.blit(font.render("Press Any Key to Continue", True, FONT_COLOR), (SCREEN_WIDTH // 3 - 100, SCREEN_HEIGHT // 2 + 60))
         
         pygame.display.update()
