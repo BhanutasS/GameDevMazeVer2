@@ -421,6 +421,8 @@ def main_l1():
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_u:
                     unpause()
 
+    key_released = True
+
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -432,7 +434,8 @@ def main_l1():
                 if event.key == pygame.K_p:
                     run = False
                     paused()
-                if event.key == pygame.K_SPACE and fireball_count > 0:
+                if event.key == pygame.K_SPACE and fireball_count > 0 and key_released:
+                    key_released = False
                     player.shoot()
                     fireballs.append(Fireball(player.soldier_rect.x, player.soldier_rect.y))
                     fireball_count -= 1
@@ -440,6 +443,9 @@ def main_l1():
                     player.soldier_rect.y = max(player.MIN_Y_POS, player.soldier_rect.y - player.VERTICAL_MOVE_SPEED)
                 if event.key == pygame.K_DOWN:
                     player.soldier_rect.y = min(player.MAX_Y_POS, player.soldier_rect.y + player.VERTICAL_MOVE_SPEED)
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_SPACE:
+                    key_released = True
 
 
             # Add bullet items to the game
@@ -483,13 +489,15 @@ def main_l1():
         player.update(userInput)
 
         if len(obstacles) == 0:
-            for i in range(5):
+            while True:
                 if random.randint(0, 2) == 0:
                     obstacles.append(SLIME(scaled_Slime))
-                if random.randint(0, 2) == 1:
+                if random.randint(0, 5) == 1:
                     obstacles.append(ALIEN(scaled_Alien))
-                if random.randint(0, 2) == 2:
+                if random.randint(0, 10) == 2:
                     obstacles.append(Big_eye(scaled_bigeye))
+                if len(obstacles) == 5:
+                    break
 
         for obstacle in obstacles:
             obstacle.draw(SCREEN)
@@ -504,7 +512,6 @@ def main_l1():
                 if fireball.collides_with(obstacle):
                     if obstacle.health>0:
                         obstacle.health-=1
-                        print("Obstacle Health:", obstacle.health)
                     else:
                         obstacles.remove(obstacle)
                         points_l1 += 50
@@ -606,6 +613,8 @@ def main_l2():
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_u:
                     unpause()
 
+    key_released = True
+
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -617,7 +626,8 @@ def main_l2():
                 if event.key == pygame.K_p:
                     run = False
                     paused()
-                if event.key == pygame.K_SPACE and fireball_count > 0:
+                if event.key == pygame.K_SPACE and fireball_count > 0 and key_released:
+                    key_released = False
                     player.shoot()
                     fireballs.append(Fireball(player.soldier_rect.x, player.soldier_rect.y))
                     fireball_count -= 1
@@ -625,6 +635,9 @@ def main_l2():
                     player.soldier_rect.y = max(player.MIN_Y_POS, player.soldier_rect.y - player.VERTICAL_MOVE_SPEED)
                 if event.key == pygame.K_DOWN:
                     player.soldier_rect.y = min(player.MAX_Y_POS, player.soldier_rect.y + player.VERTICAL_MOVE_SPEED)
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_SPACE:
+                    key_released = True
 
 
             # Add bullet items to the game
@@ -690,7 +703,6 @@ def main_l2():
                 if fireball.collides_with(obstacle):
                     if obstacle.health>0:
                         obstacle.health-=1
-                        print("Obstacle Health:", obstacle.health)
                     else:
                         obstacles.remove(obstacle)
                         points_l2 += 50
